@@ -178,6 +178,14 @@ bool p32::vm::step(size_t times) noexcept
 #undef GC
 #undef _VM_CPP_FALLTHROUGH
 
+// Using SD-6 feature tests, if [[maybe_unused]] is supported AND the CPP
+// standard is C++17, use it. Otherwise, use [[gnu::maybe_unused]].
+#if __has_cpp_attribute(maybe_unused) && (__cplusplus >= 201703L)
+ #define _VMCPP_UNUSED [[maybe_unused]]
+#else
+ #define _VMCPP_UNUSED [[gnu::unused]]
+#endif
+
 static p32::instruction load_instruction(const system_memory_t& sysmem, const register_value& pc)
 {
 	return p32::memory::read_word(sysmem, pc);
@@ -471,7 +479,7 @@ static bool fex_bne(const p32::instr_type::b& instruct, context_data& context) n
 	return true;
 }
 
-static bool fex_cf([[gnu::unused, maybe_unused]] const p32::instr_type::j& instruct, context_data& context) noexcept
+static bool fex_cf(_VMCPP_UNUSED const p32::instr_type::j& instruct, context_data& context) noexcept
 {
 	context.pc_stack.push(context.counter);
 	context.counter++;
@@ -849,14 +857,6 @@ static bool pop_from_dpstack(const unsigned int rsd, context_data& context) noex
 	
 	return true;
 }
-
-// Using SD-6 feature tests, if [[maybe_unused]] is supported AND the CPP
-// standard is C++17, use it. Otherwise, use [[gnu::maybe_unused]].
-#if __has_cpp_attribute(maybe_unused) && (__cplusplus >= 201703L)
- #define _VMCPP_UNUSED [[maybe_unused]]
-#else
- #define _VMCPP_UNUSED [[gnu::unused]]
-#endif
 
 static bool bex_add(const p32::instr_type::r& instruct, context_data& context) noexcept
 {
