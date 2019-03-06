@@ -81,7 +81,7 @@ namespace metronome32 {
 		// The program counter.
 		register_value counter = 0;
 		// The current register context.
-		register_context_t registers = {0};
+		register_context_t registers = {};
 		// The current datapath garbage stack.
 		dp_garbage_stack_t dp_stack;
 		// The current program counter garbage stack.

@@ -1,3 +1,5 @@
 *.o
 build/*
 callgrind.out.*
+*.gcda
+*.gcno

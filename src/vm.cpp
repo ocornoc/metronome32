@@ -53,7 +53,7 @@ context_data::context_data(const register_value& counter_init)
 
 context_data p32::fresh_context(const instructions_t& instructions, const register_value& start_pc)
 {
-	return std::move(context_data(instructions, start_pc));
+	return context_data(instructions, start_pc);
 }
 
 p32::vm::vm(const std::string& bytecode, register_value start_at, register_value load_at)

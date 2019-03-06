@@ -1,0 +1,26 @@
+language: cpp
+
+os:
+  - linux
+  - osx
+
+dist: xenial
+
+compiler:
+  - gcc
+  - clang
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - valgrind
+
+script:
+  - if [ $TRAVIS_OS_NAME = linux ]; then make -j2 test_full; fi
+  - make coverage
+
+after_success:
+  - gcov -o build src/vm.cpp src/memory.cpp src/instruction.cpp
+  - bash <(curl -s https://codecov.io/bash) -f "*.cpp.gcov"
