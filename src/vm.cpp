@@ -146,12 +146,12 @@ std::string p32::vm::get_error_name() const noexcept
 	}
 }
 
-// Using SD-6 feature tests, if [[fallthrough]] is supported, use it.
-// Otherwise, don't bother.
-#if __has_cpp_attribute(fallthrough)
+// Using SD-6 feature tests, if [[fallthrough]] is supported AND the CPP
+// standard is C++17, use it. Otherwise, use [[gnu::fallthrough]].
+#if __has_cpp_attribute(fallthrough) && (__cplusplus >= 201703L)
  #define _VMCPP_FALLTHROUGH [[fallthrough]];
 #else
- #define _VMCPP_FALLTHROUGH
+ #define _VMCPP_FALLTHROUGH [[gnu::fallthrough]];
 #endif
 GP bool p32::vm::is_error_trivial() const noexcept
 {
@@ -176,6 +176,7 @@ bool p32::vm::step(size_t times) noexcept
 
 #undef GP
 #undef GC
+#undef _VM_CPP_FALLTHROUGH
 
 static p32::instruction load_instruction(const system_memory_t& sysmem, const register_value& pc)
 {
