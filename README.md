@@ -2,6 +2,9 @@
 
 (using SemVer 2.0.0)
 
+[![Build Status](https://travis-ci.com/ocornoc/metronome32.svg?branch=master)](https://travis-ci.com/ocornoc/metronome32)
+[![codecov](https://codecov.io/gh/ocornoc/metronome32/branch/master/graph/badge.svg)](https://codecov.io/gh/ocornoc/metronome32)
+
 Credit for the Pendulum 32-bit Instruction Set Architecture goes to Carlin James
 Vieri.
 
@@ -33,3 +36,8 @@ Unfortunately, the use of `std::uint32_t` was practically inevitable. On top of
 that, Metronome assumes that the conversion of negative signed integers to
 unsigned numbers uses two's complement. These are thought to be relatively
 reasonable.
+
+It uses SD-6 feature tests to optionally enable some attributes such as
+`[[fallthrough]]`. It does not test for `[[maybe_unused]]` support, instead
+presuming the compiler doesn't actually treat it as an error if it cannot be
+used.
