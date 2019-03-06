@@ -146,12 +146,12 @@ std::string p32::vm::get_error_name() const noexcept
 	}
 }
 
-// Using SD-6 feature tests, if [[fallthrough]] is supported, use it.
-// Otherwise, don't bother.
-#if __has_cpp_attribute(fallthrough)
+// Using SD-6 feature tests, if [[fallthrough]] is supported AND the CPP
+// standard is C++17, use it. Otherwise, use [[gnu::fallthrough]].
+#if __has_cpp_attribute(fallthrough) && (__cplusplus >= 201703L)
  #define _VMCPP_FALLTHROUGH [[fallthrough]];
 #else
- #define _VMCPP_FALLTHROUGH
+ #define _VMCPP_FALLTHROUGH [[gnu::fallthrough]];
 #endif
 GP bool p32::vm::is_error_trivial() const noexcept
 {
@@ -176,6 +176,15 @@ bool p32::vm::step(size_t times) noexcept
 
 #undef GP
 #undef GC
+#undef _VM_CPP_FALLTHROUGH
+
+// Using SD-6 feature tests, if [[maybe_unused]] is supported AND the CPP
+// standard is C++17, use it. Otherwise, use [[gnu::maybe_unused]].
+#if __has_cpp_attribute(maybe_unused) && (__cplusplus >= 201703L)
+ #define _VMCPP_UNUSED [[maybe_unused]]
+#else
+ #define _VMCPP_UNUSED [[gnu::unused]]
+#endif
 
 static p32::instruction load_instruction(const system_memory_t& sysmem, const register_value& pc)
 {
@@ -470,7 +479,7 @@ static bool fex_bne(const p32::instr_type::b& instruct, context_data& context) n
 	return true;
 }
 
-static bool fex_cf([[gnu::unused, maybe_unused]] const p32::instr_type::j& instruct, context_data& context) noexcept
+static bool fex_cf(_VMCPP_UNUSED const p32::instr_type::j& instruct, context_data& context) noexcept
 {
 	context.pc_stack.push(context.counter);
 	context.counter++;
@@ -885,14 +894,14 @@ static bool bex_andi(const p32::instr_type::i& instruct, context_data& context) 
 	return pop_from_dpstack(instruct.rsd.to_ullong(), context);
 }
 
-static bool bex_beq([[gnu::unused, maybe_unused]] const p32::instr_type::b& instruct, context_data& context) noexcept
+static bool bex_beq(_VMCPP_UNUSED const p32::instr_type::b& instruct, context_data& context) noexcept
 {
 	context.counter--;
 	
 	return true;
 }
 
-static bool bex_bgez([[gnu::unused, maybe_unused]] const p32::instr_type::b& instruct, context_data& context) noexcept
+static bool bex_bgez(_VMCPP_UNUSED const p32::instr_type::b& instruct, context_data& context) noexcept
 {
 	context.counter--;
 	
@@ -908,21 +917,21 @@ static bool bex_bgezal(const p32::instr_type::b& instruct, context_data& context
 	return true;
 }
 
-static bool bex_bgtz([[gnu::unused, maybe_unused]] const p32::instr_type::b& instruct, context_data& context) noexcept
+static bool bex_bgtz(_VMCPP_UNUSED const p32::instr_type::b& instruct, context_data& context) noexcept
 {
 	context.counter--;
 	
 	return true;
 }
 
-static bool bex_blez([[gnu::unused, maybe_unused]] const p32::instr_type::b& instruct, context_data& context) noexcept
+static bool bex_blez(_VMCPP_UNUSED const p32::instr_type::b& instruct, context_data& context) noexcept
 {
 	context.counter--;
 	
 	return true;
 }
 
-static bool bex_bltz([[gnu::unused, maybe_unused]] const p32::instr_type::b& instruct, context_data& context) noexcept
+static bool bex_bltz(_VMCPP_UNUSED const p32::instr_type::b& instruct, context_data& context) noexcept
 {
 	context.counter--;
 	
@@ -938,14 +947,14 @@ static bool bex_bltzal(const p32::instr_type::b& instruct, context_data& context
 	return true;
 }
 
-static bool bex_bne([[gnu::unused, maybe_unused]] const p32::instr_type::b& instruct, context_data& context) noexcept
+static bool bex_bne(_VMCPP_UNUSED const p32::instr_type::b& instruct, context_data& context) noexcept
 {
 	context.counter--;
 	
 	return true;
 }
 
-static bool bex_cf([[gnu::unused, maybe_unused]] const p32::instr_type::j& instruct, context_data& context) noexcept
+static bool bex_cf(_VMCPP_UNUSED const p32::instr_type::j& instruct, context_data& context) noexcept
 {
 	if (context.pc_stack.empty()) {
 		context.errcode = p32::context_error::pc_stack_empty;
@@ -974,7 +983,7 @@ static bool bex_exchange(const p32::instr_type::b& instruct, context_data& conte
 	return true;
 }
 
-static bool bex_j([[gnu::unused, maybe_unused]] const p32::instr_type::j& instruct, context_data& context) noexcept
+static bool bex_j(_VMCPP_UNUSED const p32::instr_type::j& instruct, context_data& context) noexcept
 {
 	context.counter--;
 	
@@ -997,7 +1006,7 @@ static bool bex_jalr(const p32::instr_type::b& instruct, context_data& context) 
 	return true;
 }
 
-static bool bex_jr([[gnu::unused, maybe_unused]] const p32::instr_type::b& instruct, context_data& context) noexcept
+static bool bex_jr(_VMCPP_UNUSED const p32::instr_type::b& instruct, context_data& context) noexcept
 {
 	context.counter--;
 	
@@ -1152,6 +1161,8 @@ static bool bex_xori(const p32::instr_type::i& instruct, context_data& context) 
 	
 	return true;
 }
+
+#undef _VMCPP_UNUSED
 
 bool p32::vm::static_step(p32::vm& my_vm) noexcept
 {

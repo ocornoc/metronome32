@@ -18,8 +18,8 @@ addons:
     - valgrind
 
 script:
-  - if [ $TRAVIS_OS_NAME = linux ]; then make -j2 test_full; fi
-  - make coverage
+  - if [ $TRAVIS_OS_NAME = linux ]; then make test_full; fi
+  - make -j2 coverage
 
 after_success:
   - gcov -o build src/vm.cpp src/memory.cpp src/instruction.cpp
