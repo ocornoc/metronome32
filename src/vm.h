@@ -154,7 +154,6 @@ class metronome32::vm {
 		vm& operator=(const vm&) = default;
 		vm& operator=(vm&&) = default;
 		~vm() = default;
-		vm(const std::string& bytecode = "", register_value start_at = 0, register_value load_at = 0);
 		vm(const std::vector<memory_value>& bytecode = {}, register_value start_at = 0, register_value load_at = 0);
 	
 	private:

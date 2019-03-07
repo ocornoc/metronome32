@@ -5,10 +5,16 @@ os:
   - osx
 
 dist: xenial
+osx_image: xcode10.1
 
 compiler:
   - gcc
   - clang
+
+matrix:
+  exclude:
+  - compiler: gcc
+    os: osx
 
 addons:
   apt:
@@ -19,8 +25,17 @@ addons:
 
 script:
   - if [ $TRAVIS_OS_NAME = linux ]; then make test_full; fi
+  - if [ $TRAVIS_OS_NAME = linux ]; then make clean; fi
   - make -j2 coverage
 
 after_success:
-  - gcov -o build src/vm.cpp src/memory.cpp src/instruction.cpp
-  - bash <(curl -s https://codecov.io/bash) -f "*.cpp.gcov"
+  - if [ $TRAVIS_COMPILER = gcc ]; then
+      gcov -o build src/vm.cpp src/memory.cpp src/instruction.cpp;
+    fi
+  - if [ $TRAVIS_OS_NAME = linux ] && [ $TRAVIS_COMPILER = clang ]; then
+      llvm-cov gcov -o build src/vm.cpp src/memory.cpp src/instruction.cpp;
+    fi
+  - if [ $TRAVIS_OS_NAME = osx ] && [ $TRAVIS_COMPILER = clang ]; then
+      xcrun llvm-cov gcov -o build src/vm.cpp src/memory.cpp src/instruction.cpp;
+    fi
+  - bash <(curl -s https://codecov.io/bash) -f instruction.cpp.gcov -f memory.cpp.gcov -f vm.cpp.gcov -X gcov -F "${TRAVIS_OS_NAME}_${TRAVIS_COMPILER}"

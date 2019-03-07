@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2018 Grayson Burton ( https://github.com/ocornoc/ )
+Copyright (c) 2019 Grayson Burton ( https://github.com/ocornoc/ )
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -21,21 +21,52 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "instruction.h"
+#include "memory.h"
 #include "vm.h"
+namespace m32 = metronome32;
 
-int main() {
-	metronome32::vm my_vm(std::vector<metronome32::memory_value>({
+[[gnu::pure]] int test_instruction_conversions()
+{
+	typedef m32::instr_type::r rtype;
+	typedef m32::instr_type::j jtype;
+	typedef m32::instr_type::b btype;
+	typedef m32::instr_type::i itype;
+	typedef m32::instruction instruct;
+	
+	constexpr instruct testval = 0x12345678;
+	
+	const rtype requiv = m32::instr_to_r(testval);
+	const jtype jequiv = m32::instr_to_j(testval);
+	const btype bequiv = m32::instr_to_b(testval);
+	const itype iequiv = m32::instr_to_i(testval);
+	
+	const instruct rundo = m32::type_to_instr(requiv);
+	const instruct jundo = m32::type_to_instr(jequiv);
+	const instruct bundo = m32::type_to_instr(bequiv);
+	const instruct iundo = m32::type_to_instr(iequiv);
+	
+	if (testval != rundo) return 1;
+	else if (testval != jundo) return 1;
+	else if (testval != bundo) return 1;
+	else if (testval != iundo) return 1;
+	else return 0;
+}
+
+int test_program1()
+{
+	m32::vm my_vm(std::vector<m32::memory_value>({
 		// Function: MAIN
 		// arguments: none.
 		// dirties: R0, R1, R2, R32
 		// result: none.
 		
 		// Multiplies two constants.
-		metronome32::new_addi(0, 300),
-		metronome32::new_addi(1, 300),
+		m32::new_addi(0, 300),
+		m32::new_addi(1, 300),
 		// Call MULTIPLY.
-		metronome32::new_jal(31, 0x02),
-		metronome32::new_cf(),
+		m32::new_jal(31, 0x02),
+		m32::new_cf(),
 		
 		
 		// Function: MULTIPLY
@@ -45,28 +76,28 @@ int main() {
 		// Preconditions: R0 and R1 are non-negative.
 		
 		// Function entry.
-		metronome32::new_cf(),
+		m32::new_cf(),
 		// R2 = R0.
-		metronome32::new_andi(2, 0),
-		metronome32::new_add(2, 0),
+		m32::new_andi(2, 0),
+		m32::new_add(2, 0),
 		// Clear R0.
-		metronome32::new_andi(0, 0),
+		m32::new_andi(0, 0),
 		// If R1 == R0 (== 0), jump to LOOPSKIP.
-		metronome32::new_beq(0, 1, +6),
+		m32::new_beq(0, 1, +6),
 		// If R2 <= 0, jump to LOOPSKIP.
-		metronome32::new_blez(2, +5),
+		m32::new_blez(2, +5),
 		// LOOP1
-		metronome32::new_cf(),
+		m32::new_cf(),
 		// R0 += R1.
-		metronome32::new_add(0, 1),
+		m32::new_add(0, 1),
 		// R2 -= 1.
-		metronome32::new_addi(2, -1),
+		m32::new_addi(2, -1),
 		// If R2 > 0, jump to LOOP1.
-		metronome32::new_bgtz(2, -3),
+		m32::new_bgtz(2, -3),
 		// LOOPSKIP
-		metronome32::new_cf(),
+		m32::new_cf(),
 		// Returns to caller (R31).
-		metronome32::new_jr(31),
+		m32::new_jr(31),
 	}));
 	
 	// The program ends when the MULTIPLY function returns, so that's where
@@ -78,4 +109,16 @@ int main() {
 	// The program starts at 0, so that's where we know to stop the virtual
 	// machine.
 	while (my_vm.get_context().counter != 0) my_vm.step();
+	
+	return 0;
+}
+
+int main()
+{
+	int success = 0;
+	
+	success |= test_instruction_conversions();
+	success |= test_program1();
+	
+	return success;
 }

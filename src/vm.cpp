@@ -56,18 +56,6 @@ context_data p32::fresh_context(const instructions_t& instructions, const regist
 	return context_data(instructions, start_pc);
 }
 
-p32::vm::vm(const std::string& bytecode, register_value start_at, register_value load_at)
-	: context(start_at)
-{
-	if (not bytecode.empty()) {
-		for (const char& bc : bytecode) {
-			auto br = static_cast<decltype(context.sys_mem)::mapped_type>(bc);
-			context.sys_mem[load_at] = br;
-			load_at++;
-		}
-	}
-}
-
 p32::vm::vm(const std::vector<p32::memory_value>& bytecode, register_value start_at, register_value load_at)
 	: context(start_at)
 {

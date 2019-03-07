@@ -8,7 +8,8 @@
 Credit for the Pendulum 32-bit Instruction Set Architecture goes to Carlin James
 Vieri.
 
-Metronome32 is made by Grayson Burton.
+Metronome32 is made by Grayson Burton and is hosted at
+[its Github repo](https://github.com/ocornoc/metronome32).
 
 ## What is Pendulum?
 
@@ -41,3 +42,11 @@ It uses SD-6 feature tests to optionally enable some attributes such as
 `[[fallthrough]]`. It does not test for `[[maybe_unused]]` support, instead
 presuming the compiler doesn't actually treat it as an error if it cannot be
 used.
+
+## Routine Testing
+
+Currently, Metronome32's master branch is tested on a per pull request basis.
+It uses [Travis CI](https://travis-ci.com/) to test on:
+ * Ubuntu Xenial Xerus 16.04 LTS using GCC 5.4.0
+ * Ubuntu Xenial Xerus 16.04 LTS using Clang/LLVM 7.0
+ * macOS 10.13 (Xcode 10.1) using Clang/LLVM 9.1
