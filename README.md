@@ -4,6 +4,7 @@
 
 [![Build Status](https://travis-ci.com/ocornoc/metronome32.svg?branch=master)](https://travis-ci.com/ocornoc/metronome32)
 [![codecov](https://codecov.io/gh/ocornoc/metronome32/branch/master/graph/badge.svg)](https://codecov.io/gh/ocornoc/metronome32)
+[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/ocornoc/metronome32.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ocornoc/metronome32/context:cpp)
 
 Credit for the Pendulum 32-bit Instruction Set Architecture goes to Carlin James
 Vieri.
