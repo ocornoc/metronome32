@@ -21,6 +21,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <utility>
 #include "instruction.h"
 #include "memory.h"
 #include "vm.h"
@@ -105,6 +106,79 @@ int test_context()
 	return 0;
 }
 
+int test_vm()
+{
+	typedef m32::context_data cdata;
+	typedef m32::register_value regv_t;
+	typedef m32::context_error cerr;
+	
+	m32::system_memory_t mem ({{0, 0}, {1, 1}, {2, 2}});
+	regv_t startpc = 1;
+	cdata context1(mem, startpc);
+	cdata context2(context1);
+	m32::vm vm1({0, 1, 2}, 0, 0);
+	
+	if (vm1.get_context().sys_mem != context1.sys_mem) return 1;
+	if (&vm1.get_context().sys_mem == &context1.sys_mem) return 1;
+	if (vm1.get_context().sys_mem != context2.sys_mem) return 1;
+	if (&vm1.get_context().sys_mem == &context2.sys_mem) return 1;
+	vm1.set_context(context1);
+	if (vm1.get_context().sys_mem != context1.sys_mem) return 1;
+	if (&vm1.get_context().sys_mem == &context1.sys_mem) return 1;
+	if (vm1.get_context().sys_mem != context2.sys_mem) return 1;
+	if (&vm1.get_context().sys_mem == &context2.sys_mem) return 1;
+	vm1.set_context(std::move(context1));
+	if (vm1.get_context().sys_mem != context2.sys_mem) return 1;
+	if (&vm1.get_context().sys_mem == &context2.sys_mem) return 1;
+	
+	if (vm1.reversing()) return 1;
+	vm1.reverse();
+	if (not vm1.reversing()) return 1;
+	vm1.reverse();
+	if (vm1.reversing()) return 1;
+	vm1.reverse(false);
+	if (vm1.reversing()) return 1;
+	vm1.reverse(true);
+	if (not vm1.reversing()) return 1;
+	vm1.reverse(true);
+	if (not vm1.reversing()) return 1;
+	
+	if (vm1.halted()) return 1;
+	if (not vm1.halt()) return 1;
+	if (not vm1.halted()) return 1;
+	if (not vm1.halt(false)) return 1;
+	if (vm1.halted()) return 1;
+	
+	vm1.set_context(m32::fresh_context({}));
+	if (vm1.get_error_code() != cerr::nothing) return 1;
+	if (vm1.get_error_name() != "nothing") return 1;
+	if (not vm1.is_error_trivial()) return 1;
+	vm1.step();
+	if (vm1.get_error_code() != cerr::naidefault) return 1;
+	if (vm1.get_error_name() != "not an instruction, but memory default")
+		return 1;
+	if (not vm1.is_error_trivial()) return 1;
+	vm1.set_context(m32::fresh_context({}));
+	vm1.reverse();
+	if (vm1.get_error_code() != cerr::nothing) return 1;
+	vm1.step();
+	if (vm1.get_error_code() != cerr::naidefault) return 1;
+	
+	if (m32::memory_default == -1) {
+		vm1.set_context(m32::fresh_context({{0, 0}}));
+	} else {
+		vm1.set_context(m32::fresh_context({{0, -1}}));
+	}
+	
+	vm1.step();
+	if (vm1.get_error_code() != cerr::nai) return 1;
+	if (vm1.get_error_name() != "not an instruction") return 1;
+	if (vm1.is_error_trivial()) return 1;
+	if (vm1.halt(false)) return 1;
+	
+	return 0;
+}
+
 int test_program1()
 {
 	m32::vm my_vm(std::vector<m32::memory_value>({
@@ -172,6 +246,7 @@ int main()
 	success |= test_instruction_conversions();
 	success |= test_memory();
 	success |= test_context();
+	success |= test_vm();
 	success |= test_program1();
 	
 	return success;
