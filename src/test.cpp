@@ -76,6 +76,35 @@ int test_memory()
 	return 0;
 }
 
+int test_context()
+{
+	typedef m32::context_data cdata;
+	typedef m32::register_value regv_t;
+	
+	m32::system_memory_t mem ({{0, 0}, {1, 1}, {2, 2}});
+	regv_t startpc = 1;
+	
+	cdata context1(mem, startpc);
+	cdata context2(startpc);
+	cdata context3 = m32::fresh_context(mem, startpc);
+	
+	if (context1.counter != context2.counter) return 1;
+	if (context1.sys_mem == context2.sys_mem) return 1;
+	
+	// Contexts made of fresh_context and regular constructors should be
+	// the same.
+	if (context1.reversing != context3.reversing) return 1;
+	if (context1.halted != context3.halted) return 1;
+	if (context1.errcode != context3.errcode) return 1;
+	if (context1.counter != context3.counter) return 1;
+	if (context1.registers != context3.registers) return 1;
+	if (context1.dp_stack != context3.dp_stack) return 1;
+	if (context1.pc_stack != context3.pc_stack) return 1;
+	if (context1.sys_mem != context3.sys_mem) return 1;
+	
+	return 0;
+}
+
 int test_program1()
 {
 	m32::vm my_vm(std::vector<m32::memory_value>({
@@ -142,6 +171,7 @@ int main()
 	
 	success |= test_instruction_conversions();
 	success |= test_memory();
+	success |= test_context();
 	success |= test_program1();
 	
 	return success;
