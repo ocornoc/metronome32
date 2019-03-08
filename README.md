@@ -49,4 +49,4 @@ Currently, Metronome32's master branch is tested on a per pull request basis.
 It uses [Travis CI](https://travis-ci.com/) to test on:
  * Ubuntu Xenial Xerus 16.04 LTS using GCC 5.4.0
  * Ubuntu Xenial Xerus 16.04 LTS using Clang/LLVM 7.0
- * macOS 10.13 (Xcode 10.1) using Clang/LLVM 9.1
+ * macOS 10.13 (Xcode 10.1) using Clang/LLVM 10.0
