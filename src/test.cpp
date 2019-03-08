@@ -53,6 +53,29 @@ namespace m32 = metronome32;
 	else return 0;
 }
 
+int test_memory()
+{
+	typedef m32::register_value regv_t;
+	
+	m32::system_memory_t testmem ({{0, 0}, {1, 1}, {2, 2}});
+	
+	for (regv_t i = 0; i < 3; i++) {
+		if (m32::memory::read_word(testmem, i) != i) return 1;
+	}
+	
+	if (m32::memory::read_word(testmem, 3) != m32::memory_default) return 1;
+	
+	for (regv_t i = 0; i < 4; i++) {
+		m32::memory::write_word(testmem, i, i + 10);
+	}
+	
+	for (regv_t i = 0; i < 4; i++) {
+		if (m32::memory::read_word(testmem, i) != i + 10) return 1;
+	}
+	
+	return 0;
+}
+
 int test_program1()
 {
 	m32::vm my_vm(std::vector<m32::memory_value>({
@@ -118,6 +141,7 @@ int main()
 	int success = 0;
 	
 	success |= test_instruction_conversions();
+	success |= test_memory();
 	success |= test_program1();
 	
 	return success;
