@@ -188,8 +188,8 @@ int test_program1()
 		// result: none.
 		
 		// Multiplies two constants.
-		m32::new_addi(0, 300),
-		m32::new_addi(1, 300),
+		m32::new_addi(0, 4),
+		m32::new_addi(1, 10),
 		// Call MULTIPLY.
 		m32::new_jal(31, 0x02),
 		m32::new_cf(),
@@ -228,13 +228,15 @@ int test_program1()
 	
 	// The program ends when the MULTIPLY function returns, so that's where
 	// we know to stop the virtual machine.
-	while (my_vm.get_context().counter != 4) my_vm.step();
+	while (my_vm.get_context().counter != 15)
+		if (not my_vm.step()) return 1;
 	
 	my_vm.reverse();
 	
 	// The program starts at 0, so that's where we know to stop the virtual
 	// machine.
-	while (my_vm.get_context().counter != 0) my_vm.step();
+	while (my_vm.get_context().counter != 0)
+		if (not my_vm.step()) return 1;
 	
 	return 0;
 }
