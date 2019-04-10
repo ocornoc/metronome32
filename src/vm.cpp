@@ -129,7 +129,7 @@ std::string p32::vm::get_error_name() const noexcept
 		case (context_error::pc_stack_empty): return "PC stack empty";
 		case (context_error::missing_cf): return "missing CF instruction";
 		case (context_error::unclear_link): return "link register isn't clear";
-		case (context_error::sub_same_registers): return "can't subtract from self";
+		case (context_error::r_same_registers): return "can't op on self";
 		default: return "unknown";
 	}
 }
@@ -195,10 +195,18 @@ static bool fex_add(const p32::instr_type::r& instruct, context_data& context) n
 {
 	const unsigned int rsd = instruct.rsd.to_ullong();
 	const unsigned int rs = instruct.rs.to_ullong();
-	context.registers[rsd] += context.registers[rs];
-	context.counter++;
 	
-	return true;
+	if (rsd == rs) {
+		context.errcode = p32::context_error::r_same_registers;
+		context.halted = true;
+		
+		return false;
+	} else {
+		context.registers[rsd] += context.registers[rs];
+		context.counter++;
+		
+		return true;
+	}
 }
 
 static bool fex_addi(const p32::instr_type::i& instruct, context_data& context) noexcept
@@ -215,11 +223,19 @@ static bool fex_and(const p32::instr_type::r& instruct, context_data& context) n
 {
 	const unsigned int rsd = instruct.rsd.to_ullong();
 	const unsigned int rs = instruct.rs.to_ullong();
-	context.dp_stack.push(context.registers[rsd]);
-	context.registers[rsd] &= context.registers[rs];
-	context.counter++;
 	
-	return true;
+	if (rsd == rs) {
+		context.errcode = p32::context_error::r_same_registers;
+		context.halted = true;
+		
+		return false;
+	} else {
+		context.dp_stack.push(context.registers[rsd]);
+		context.registers[rsd] &= context.registers[rs];
+		context.counter++;
+		
+		return true;
+	}
 }
 
 static bool fex_andi(const p32::instr_type::i& instruct, context_data& context) noexcept
@@ -592,12 +608,20 @@ static bool fex_nor(const p32::instr_type::r& instruct, context_data& context) n
 {
 	const unsigned int rsd = instruct.rsd.to_ullong();
 	const unsigned int rs = instruct.rs.to_ullong();
-	context.dp_stack.push(context.registers[rsd]);
-	context.registers[rsd] |= context.registers[rs];
-	context.registers[rsd] = ~context.registers[rsd];
-	context.counter++;
 	
-	return true;
+	if (rsd == rs) {
+		context.errcode = p32::context_error::r_same_registers;
+		context.halted = true;
+		
+		return false;
+	} else {
+		context.dp_stack.push(context.registers[rsd]);
+		context.registers[rsd] |= context.registers[rs];
+		context.registers[rsd] = ~context.registers[rsd];
+		context.counter++;
+		
+		return true;
+	}
 }
 
 static bool fex_neg(const p32::instr_type::r& instruct, context_data& context) noexcept
@@ -613,11 +637,19 @@ static bool fex_or(const p32::instr_type::r& instruct, context_data& context) no
 {
 	const unsigned int rsd = instruct.rsd.to_ullong();
 	const unsigned int rs = instruct.rs.to_ullong();
-	context.dp_stack.push(context.registers[rsd]);
-	context.registers[rsd] |= context.registers[rs];
-	context.counter++;
 	
-	return true;
+	if (rsd == rs) {
+		context.errcode = p32::context_error::r_same_registers;
+		context.halted = true;
+		
+		return false;
+	} else {
+		context.dp_stack.push(context.registers[rsd]);
+		context.registers[rsd] |= context.registers[rs];
+		context.counter++;
+		
+		return true;
+	}
 }
 
 static bool fex_ori(const p32::instr_type::i& instruct, context_data& context) noexcept
@@ -648,10 +680,18 @@ static bool fex_rlv(const p32::instr_type::r& instruct, context_data& context) n
 	const unsigned int rs = instruct.rs.to_ullong();
 	const register_value amt = context.registers[rs] & 0b11111;
 	const register_value rsdval = context.registers[rsd];
-	context.registers[rsd] = (rsdval << amt) | (rsdval >> (-amt & 0b11111));
-	context.counter++;
 	
-	return true;
+	if (rsd == rs) {
+		context.errcode = p32::context_error::r_same_registers;
+		context.halted = true;
+		
+		return false;
+	} else {
+		context.registers[rsd] = (rsdval << amt) | (rsdval >> (-amt & 0b11111));
+		context.counter++;
+		
+		return true;
+	}
 }
 
 static bool fex_rr(const p32::instr_type::r& instruct, context_data& context) noexcept
@@ -671,10 +711,18 @@ static bool fex_rrv(const p32::instr_type::r& instruct, context_data& context) n
 	const unsigned int rs = instruct.rs.to_ullong();
 	const register_value amt = context.registers[rs] & 0b11111;
 	const register_value rsdval = context.registers[rsd];
-	context.registers[rsd] = (rsdval >> amt) | (rsdval << (-amt & 0b11111));
-	context.counter++;
 	
-	return true;
+	if (rsd == rs) {
+		context.errcode = p32::context_error::r_same_registers;
+		context.halted = true;
+		
+		return false;
+	} else {
+		context.registers[rsd] = (rsdval >> amt) | (rsdval << (-amt & 0b11111));
+		context.counter++;
+		
+		return true;
+	}
 }
 
 static bool fex_sll(const p32::instr_type::r& instruct, context_data& context) noexcept
@@ -693,11 +741,19 @@ static bool fex_sllv(const p32::instr_type::r& instruct, context_data& context) 
 	const unsigned int rsd = instruct.rsd.to_ullong();
 	const unsigned int rs = instruct.rs.to_ullong();
 	const register_value amt = context.registers[rs] & 0b11111;
-	context.dp_stack.push(context.registers[rsd]);
-	context.registers[rsd] <<= amt;
-	context.counter++;
 	
-	return true;
+	if (rsd == rs) {
+		context.errcode = p32::context_error::r_same_registers;
+		context.halted = true;
+		
+		return false;
+	} else {
+		context.dp_stack.push(context.registers[rsd]);
+		context.registers[rsd] <<= amt;
+		context.counter++;
+		
+		return true;
+	}
 }
 
 static bool fex_slt(const p32::instr_type::r& instruct, context_data& context) noexcept
@@ -706,21 +762,29 @@ static bool fex_slt(const p32::instr_type::r& instruct, context_data& context) n
 	const unsigned int rs = instruct.rs.to_ullong();
 	const register_value rsdval = context.registers[rsd];
 	const register_value rsval = context.registers[rs];
-	context.dp_stack.push(context.registers[rsd]);
-	context.counter++;
 	
-	constexpr register_value mask = -1;
-	if (rsdval >> 31 == 0 and rsval >> 31 == 1) {
-		context.registers[rsd] = 0;
-	} else if (rsdval >> 31 == 1 and rsval >> 31 == 0) {
-		context.registers[rsd] = 1;
-	} else if ((rsdval & mask) < (rsval & mask)) {
-		context.registers[rsd] = 1;
+	if (rsd == rs) {
+		context.errcode = p32::context_error::r_same_registers;
+		context.halted = true;
+		
+		return false;
 	} else {
-		context.registers[rsd] = 0;
+		context.dp_stack.push(context.registers[rsd]);
+		context.counter++;
+		
+		constexpr register_value mask = -1;
+		if (rsdval >> 31 == 0 and rsval >> 31 == 1) {
+			context.registers[rsd] = 0;
+		} else if (rsdval >> 31 == 1 and rsval >> 31 == 0) {
+			context.registers[rsd] = 1;
+		} else if ((rsdval & mask) < (rsval & mask)) {
+			context.registers[rsd] = 1;
+		} else {
+			context.registers[rsd] = 0;
+		}
+		
+		return true;
 	}
-	
-	return true;
 }
 
 static bool fex_slti(const p32::instr_type::i& instruct, context_data& context) noexcept
@@ -761,11 +825,19 @@ static bool fex_srav(const p32::instr_type::r& instruct, context_data& context) 
 	const unsigned int rsd = instruct.rsd.to_ullong();
 	const unsigned int rs = instruct.rs.to_ullong();
 	const register_value amt = context.registers[rs] & 0b11111;
-	context.dp_stack.push(context.registers[rsd]);
-	context.registers[rsd] = sign_extend(context.registers[rsd] >> amt, 32 - amt);
-	context.counter++;
 	
-	return true;
+	if (rsd == rs) {
+		context.errcode = p32::context_error::r_same_registers;
+		context.halted = true;
+		
+		return false;
+	} else {
+		context.dp_stack.push(context.registers[rsd]);
+		context.registers[rsd] = sign_extend(context.registers[rsd] >> amt, 32 - amt);
+		context.counter++;
+		
+		return true;
+	}
 }
 
 static bool fex_srl(const p32::instr_type::r& instruct, context_data& context) noexcept
@@ -784,11 +856,19 @@ static bool fex_srlv(const p32::instr_type::r& instruct, context_data& context) 
 	const unsigned int rsd = instruct.rsd.to_ullong();
 	const unsigned int rs = instruct.rs.to_ullong();
 	const register_value amt = context.registers[rs] & 0b11111;
-	context.dp_stack.push(context.registers[rsd]);
-	context.registers[rsd] >>= amt;
-	context.counter++;
 	
-	return true;
+	if (rsd == rs) {
+		context.errcode = p32::context_error::r_same_registers;
+		context.halted = true;
+		
+		return false;
+	} else {
+		context.dp_stack.push(context.registers[rsd]);
+		context.registers[rsd] >>= amt;
+		context.counter++;
+		
+		return true;
+	}
 }
 
 static bool fex_sub(const p32::instr_type::r& instruct, context_data& context) noexcept
@@ -797,27 +877,34 @@ static bool fex_sub(const p32::instr_type::r& instruct, context_data& context) n
 	const unsigned int rs = instruct.rs.to_ullong();
 	
 	if (rsd == rs) {
-		context.errcode = p32::context_error::sub_same_registers;
+		context.errcode = p32::context_error::r_same_registers;
 		context.halted = true;
 		
 		return false;
 	} else {
 		context.registers[rsd] -= context.registers[rs];
+		context.counter++;
+		
+		return true;
 	}
-	
-	context.counter++;
-	
-	return true;
 }
 
 static bool fex_xor(const p32::instr_type::r& instruct, context_data& context) noexcept
 {
 	const unsigned int rsd = instruct.rsd.to_ullong();
 	const unsigned int rs = instruct.rs.to_ullong();
-	context.registers[rsd] ^= context.registers[rs];
-	context.counter++;
 	
-	return true;
+	if (rsd == rs) {
+		context.errcode = p32::context_error::r_same_registers;
+		context.halted = true;
+		
+		return false;
+	} else {
+		context.registers[rsd] ^= context.registers[rs];
+		context.counter++;
+		
+		return true;
+	}
 }
 
 static bool fex_xori(const p32::instr_type::i& instruct, context_data& context) noexcept
@@ -852,14 +939,16 @@ static bool bex_add(const p32::instr_type::r& instruct, context_data& context) n
 	const unsigned int rs = instruct.rs.to_ullong();
 	
 	if (rsd == rs) {
-		context.registers[rsd] >>= 1;
+		context.errcode = p32::context_error::r_same_registers;
+		context.halted = true;
+		
+		return false;
 	} else {
 		context.registers[rsd] -= context.registers[rs];
+		context.counter--;
+		
+		return true;
 	}
-	
-	context.counter--;
-	
-	return true;
 }
 
 static bool bex_addi(const p32::instr_type::i& instruct, context_data& context) noexcept
@@ -949,7 +1038,6 @@ static bool bex_cf(_VMCPP_UNUSED const p32::instr_type::j& instruct, context_dat
 		context.halted = true;
 		
 		return false;
-	
 	}
 	
 	context.counter = context.pc_stack.top();
@@ -1042,10 +1130,18 @@ static bool bex_rlv(const p32::instr_type::r& instruct, context_data& context) n
 	const unsigned int rs = instruct.rs.to_ullong();
 	const register_value amt = context.registers[rs] & 0b11111;
 	const register_value rsdval = context.registers[rsd];
-	context.registers[rsd] = (rsdval >> amt) | (rsdval << (-amt & 0b11111));
-	context.counter--;
 	
-	return true;
+	if (rsd == rs) {
+		context.errcode = p32::context_error::r_same_registers;
+		context.halted = true;
+		
+		return false;
+	} else {
+		context.registers[rsd] = (rsdval >> amt) | (rsdval << (-amt & 0b11111));
+		context.counter--;
+		
+		return true;
+	}
 }
 
 static bool bex_rr(const p32::instr_type::r& instruct, context_data& context) noexcept
@@ -1065,10 +1161,18 @@ static bool bex_rrv(const p32::instr_type::r& instruct, context_data& context) n
 	const unsigned int rs = instruct.rs.to_ullong();
 	const register_value amt = context.registers[rs] & 0b11111;
 	const register_value rsdval = context.registers[rsd];
-	context.registers[rsd] = (rsdval << amt) | (rsdval >> (-amt & 0b11111));
-	context.counter--;
 	
-	return true;
+	if (rsd == rs) {
+		context.errcode = p32::context_error::r_same_registers;
+		context.halted = true;
+		
+		return false;
+	} else {
+		context.registers[rsd] = (rsdval << amt) | (rsdval >> (-amt & 0b11111));
+		context.counter--;
+		
+		return true;
+	}
 }
 
 static bool bex_sll(const p32::instr_type::r& instruct, context_data& context) noexcept
@@ -1117,27 +1221,34 @@ static bool bex_sub(const p32::instr_type::r& instruct, context_data& context) n
 	const unsigned int rs = instruct.rs.to_ullong();
 	
 	if (rsd == rs) {
-		context.errcode = p32::context_error::sub_same_registers;
+		context.errcode = p32::context_error::r_same_registers;
 		context.halted = true;
 		
 		return false;
 	} else {
 		context.registers[rsd] += context.registers[rs];
+		context.counter--;
+		
+		return true;
 	}
-	
-	context.counter--;
-	
-	return true;
 }
 
 static bool bex_xor(const p32::instr_type::r& instruct, context_data& context) noexcept
 {
 	const unsigned int rsd = instruct.rsd.to_ullong();
 	const unsigned int rs = instruct.rs.to_ullong();
-	context.registers[rsd] ^= context.registers[rs];
-	context.counter--;
 	
-	return true;
+	if (rsd == rs) {
+		context.errcode = p32::context_error::r_same_registers;
+		context.halted = true;
+		
+		return false;
+	} else {
+		context.registers[rsd] ^= context.registers[rs];
+		context.counter--;
+		
+		return true;
+	}
 }
 
 static bool bex_xori(const p32::instr_type::i& instruct, context_data& context) noexcept

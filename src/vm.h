@@ -57,9 +57,8 @@ namespace metronome32 {
 		// In jump/branch and link operations, the link register must be
 		// clear (== 0) iff the jump/branch condition is satisfied.
 		unclear_link,
-		// In the SUB instruction, you cannot have the RSD and the RS
-		// registers be the same exact register.
-		sub_same_registers,
+		// r-type instructions using RS and RSD cannot have RS == RSD.
+		r_same_registers,
 	};
 	
 	// An entire context for the VM.

@@ -654,6 +654,8 @@ memory_value p32::new_add(
 	const gpregister& rsd,
 	const gpregister& rs) noexcept
 {
+	assert(rsd != rs);
+	
 	instr_type::r instr;
 	instr.op = rtype_op_special;
 	instr.rsd = rsd;
@@ -680,6 +682,8 @@ memory_value p32::new_and(
 	const gpregister& rsd,
 	const gpregister& rs) noexcept
 {
+	assert(rsd != rs);
+	
 	instr_type::r instr;
 	instr.op = rtype_op_special;
 	instr.rsd = rsd;
@@ -875,6 +879,8 @@ memory_value p32::new_neg(
 	const gpregister& rsd,
 	const gpregister& rs) noexcept
 {
+	assert(rsd != rs);
+	
 	instr_type::r instr;
 	instr.op = rtype_op_special;
 	instr.rsd = rsd;
@@ -889,6 +895,8 @@ memory_value p32::new_or(
 	const gpregister& rsd,
 	const gpregister& rs) noexcept
 {
+	assert(rsd != rs);
+	
 	instr_type::r instr;
 	instr.op = rtype_op_special;
 	instr.rsd = rsd;
@@ -929,6 +937,8 @@ memory_value p32::new_rlv(
 	const gpregister& rsd,
 	const gpregister& rs) noexcept
 {
+	assert(rsd != rs);
+	
 	instr_type::r instr;
 	instr.op = rtype_op_special;
 	instr.rsd = rsd;
@@ -957,6 +967,8 @@ memory_value p32::new_rrv(
 	const gpregister& rsd,
 	const gpregister& rs) noexcept
 {
+	assert(rsd != rs);
+	
 	instr_type::r instr;
 	instr.op = rtype_op_special;
 	instr.rsd = rsd;
@@ -985,6 +997,8 @@ memory_value p32::new_sllv(
 	const gpregister& rsd,
 	const gpregister& rs) noexcept
 {
+	assert(rsd != rs);
+	
 	instr_type::r instr;
 	instr.op = rtype_op_special;
 	instr.rsd = rsd;
@@ -999,6 +1013,8 @@ memory_value p32::new_slt(
 	const gpregister& rsd,
 	const gpregister& rs) noexcept
 {
+	assert(rsd != rs);
+	
 	instr_type::r instr;
 	instr.op = rtype_op_special;
 	instr.rsd = rsd;
@@ -1039,6 +1055,8 @@ memory_value p32::new_srav(
 	const gpregister& rsd,
 	const gpregister& rs) noexcept
 {
+	assert(rsd != rs);
+	
 	instr_type::r instr;
 	instr.op = rtype_op_special;
 	instr.rsd = rsd;
@@ -1067,6 +1085,8 @@ memory_value p32::new_srlv(
 	const gpregister& rsd,
 	const gpregister& rs) noexcept
 {
+	assert(rsd != rs);
+	
 	instr_type::r instr;
 	instr.op = rtype_op_special;
 	instr.rsd = rsd;
@@ -1081,6 +1101,8 @@ memory_value p32::new_sub(
 	const gpregister& rsd,
 	const gpregister& rs) noexcept
 {
+	assert(rsd != rs);
+	
 	instr_type::r instr;
 	instr.op = rtype_op_special;
 	instr.rsd = rsd;
@@ -1097,6 +1119,8 @@ memory_value p32::new_xor(
 	const gpregister& rsd,
 	const gpregister& rs) noexcept
 {
+	assert(rsd != rs);
+	
 	instr_type::r instr;
 	instr.op = rtype_op_special;
 	instr.rsd = rsd;
