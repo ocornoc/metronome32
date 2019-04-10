@@ -251,5 +251,5 @@ int main()
 	success |= test_vm();
 	success |= test_program1();
 	
-	return success;
+	return success == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
