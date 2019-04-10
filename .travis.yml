@@ -22,10 +22,12 @@ addons:
     - ubuntu-toolchain-r-test
     packages:
     - valgrind
+    - cppcheck
 
 script:
   - if [ $TRAVIS_OS_NAME = linux ]; then make test_full; fi
   - if [ $TRAVIS_OS_NAME = linux ]; then make clean; fi
+  - if [ $TRAVIS_OS_NAME = linux ]; then cppcheck --enable=all --inconclusive --std=c++14 .; fi
   - make -j2 coverage
 
 after_success:
