@@ -28,7 +28,7 @@ though this capability is intentionally barebones.
 
 Make sure to read through the [Pendulum 32-bit Instruction Set Architecture specifications](https://dspace.mit.edu/bitstream/handle/1721.1/36039/33342527-MIT.pdf).
 It contains a lot of valuable information, not to mention that it's the sole
-source use in Metronome32's production.
+source used in Metronome32's production.
 
 One *extremely* easy mistake to make is to forget (or never know) that all
 branch and jump instructions must point to a `CF` (come from) instruction.
